@@ -1,0 +1,6 @@
+ihbar-tool/
+├── main.go
+├── ihbarlar.json
+├── go.mod
+├── .gitignore
+└── README.md
