@@ -1,0 +1,80 @@
+---
+
+### 🔧 `main.go` Dosyası
+
+```go
+package main
+
+import (
+    "bufio"
+    "encoding/json"
+    "fmt"
+    "os"
+    "strings"
+)
+
+type Ihbar struct {
+    Numara string `json:"numara"`
+}
+
+func main() {
+    reader := bufio.NewReader(os.Stdin)
+
+    for {
+        fmt.Println("\033[31madmin: yagzreal\033[0m") // Kırmızı yazı
+        fmt.Println("\n--- İHBAR TOOL ---")
+        fmt.Println("1. İhbar Yap")
+        fmt.Println("2. İhbarları Görüntüle")
+        fmt.Println("3. Çıkış")
+        fmt.Print("Seçim yapın: ")
+
+        secim, _ := reader.ReadString('\n')
+        secim = strings.TrimSpace(secim)
+
+        switch secim {
+        case "1":
+            fmt.Print("İhbar edilecek numarayı girin: ")
+            numara, _ := reader.ReadString('\n')
+            numara = strings.TrimSpace(numara)
+            ihbarEkle(numara)
+        case "2":
+            ihbarlariGoster()
+        case "3":
+            fmt.Println("Çıkılıyor...")
+            return
+        default:
+            fmt.Println("Geçersiz seçim.")
+        }
+    }
+}
+
+func ihbarEkle(numara string) {
+    ihbar := Ihbar{Numara: numara}
+    var ihbarlar []Ihbar
+
+    dosya, _ := os.ReadFile("ihbarlar.json")
+    if len(dosya) > 0 {
+        json.Unmarshal(dosya, &ihbarlar)
+    }
+
+    ihbarlar = append(ihbarlar, ihbar)
+    yeniJSON, _ := json.MarshalIndent(ihbarlar, "", "  ")
+    os.WriteFile("ihbarlar.json", yeniJSON, 0644)
+    fmt.Println("İhbar başarıyla kaydedildi.")
+}
+
+func ihbarlariGoster() {
+    dosya, err := os.ReadFile("ihbarlar.json")
+    if err != nil || len(dosya) == 0 {
+        fmt.Println("Hiç ihbar yok.")
+        return
+    }
+
+    var ihbarlar []Ihbar
+    json.Unmarshal(dosya, &ihbarlar)
+
+    fmt.Println("\n--- Kayıtlı İhbarlar ---")
+    for i, ihbar := range ihbarlar {
+        fmt.Printf("%d. %s\n", i+1, ihbar.Numara)
+    }
+}
